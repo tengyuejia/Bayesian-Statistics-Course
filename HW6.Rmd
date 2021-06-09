@@ -1,0 +1,83 @@
+---
+title: "Homework 6"
+geometry: margin=1.2cm
+output: pdf_document
+---
+
+```{r set up}
+setwd("/Users//Bayesian Data Analysis/HW")
+source("/Users/Bayesian Data Analysis/DBDA2Eprograms/BernGrid.R")
+source("/Users/Bayesian Data Analysis/DBDA2Eprograms/DBDA2E-utilities.R")
+source("/Users/Bayesian Data Analysis/DBDA2Eprograms/BernBeta.R")
+source("/Users/Bayesian Data Analysis/DBDA2Eprograms/HDIofICDF.R")
+```
+
+## Class Example
+The posterior distribution is more concentrated and narrow because the data distribution is more concentrated and we have more data which has more influence on posterior than prior
+```{r, out.width ="50%"}
+binwidth = 1/1000
+thetagrid = seq(from = binwidth/2, to=1-binwidth/2, by= binwidth)
+relprob = pmin(thetagrid, 1-thetagrid)
+prior = relprob/sum(relprob)
+plot(thetagrid, relprob)
+plot(thetagrid, prior)
+
+datavec = c(rep(1,200), rep(0,400-200)) #400 flips, 200 heads
+posterior = BernGrid(Theta = thetagrid, pTheta = prior, Data = datavec)
+
+```
+  
+## Exercises 6.1 
+#### Part (A)
+  The posterior is dbeta(theta|5,4) and is skewed towards head
+```{r, out.width ="50%"}
+posteriorA = BernBeta(c(4,4), c(1))
+```
+  
+#### Part (B)
+  The new posterior is dbeta(theta|6,4) and is skewed towards head
+```{r, out.width ="50%"}
+priorB = posteriorA
+posteriorB = BernBeta(priorB, c(1))
+```
+  
+#### Part (C)
+  The new posterior is dbeta(theta|6,5) 
+```{r, out.width ="50%"}
+priorC = posteriorB
+posteriorC = BernBeta(priorC, c(0))
+```
+  
+#### Part (D)
+  The new posterior is dbeta(theta|6,5) and is the same as before. The order doesn't matter.
+```{r, out.width ="50%"}
+# the same updates but in the order T, H, H
+posteriorA.2 = BernBeta(c(4,4), c(0))
+priorB.2 = posteriorA.2
+posteriorB.2 = BernBeta(priorB.2, c(1))
+priorC.2 = posteriorB.2
+posteriorC.2 = BernBeta(priorC.2, c(1))
+```
+  
+## Exercises 6.2
+#### Part (A)
+  The 95% HDI is .483 to .673.
+```{r, out.width ="50%"}
+prior.Ex2 = c(1,1)
+data.Ex2 = c(rep(1,58),rep(0,100-58))
+posterior.Ex2 = BernBeta(prior.Ex2, data.Ex2, showHDI = TRUE)
+```
+  
+#### Part (B)
+  The 95% HDI is .506 to .642 and is narrower than before.
+```{r, out.width ="50%"}
+prior.Ex2.2 = posterior.Ex2
+data.Ex2.2 = c(rep(1,57),rep(0,100-57))
+posterior.Ex2.2 = BernBeta(prior.Ex2.2, data.Ex2.2, showHDI = TRUE)
+
+```
+
+
+
+
+

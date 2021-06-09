@@ -1,0 +1,26 @@
+---
+title: "homework"
+output: pdf_document
+---
+
+```{r}
+
+# 3 coins: 1 head (.25), 1 tail(.75), 1 fair(.5), get equal number of each
+Theta2 = seq(0,1,length=1000)
+pTheta2 = c(rep(1,200),
+            seq(1,100,length=50),
+            seq(100,1,length=50),
+            rep(1,150),
+            seq(1,100,length=50),
+            seq(100,1,length=50),
+            rep(1,150),
+            seq(1,100,length=50),
+            seq(100,1,length=50),
+            rep(1,200)
+)
+sum(pTheta2)
+length(pTheta2)
+pTheta2 = pTheta2/sum(pTheta2) #normalizing ptheta so it sums to 1
+plot(Theta2,pTheta2)
+
+```

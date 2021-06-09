@@ -1,0 +1,118 @@
+---
+title: "Bayesian Stats HW2"
+output: pdf_document
+---
+
+
+
+Questions:
+With following data create a .csv file. Call this file Week2Data.csv
+```{r}
+# create a data.frame
+Week2Data <- data.frame(matrix(c(
+  1,1,1,1,
+  1,1,2,0,
+  1,1,1,1,
+  1,1,2,1, 
+  2,1,1,0, 
+  2,1,2,0, 
+  2,1,1,0, 
+  2,1,2,0, 
+  3,1,1,1, 
+  3,1,2,1,
+  3,1,1,1,
+  3,1,2,1,
+  4,1,1,0,
+  4,1,2,0,
+  4,1,1,1,
+  4,1,2,1,
+  1,2,1,1,
+  1,2,2,0,
+  1,2,1,1,
+  1,2,2,1,
+  2,2,1,0,
+  2,2,2,0,
+  2,2,1,0,
+  2,2,2,0,
+  3,2,1,1,
+  3,2,2,1,
+  3,2,1,1,
+  3,2,2,1,
+  4,2,1,0,
+  4,2,2,0,
+  4,2,1,1,
+  4,2,2,1), ncol = 4, byrow = TRUE)) 
+colnames(Week2Data) = c("subNum", "cond1", "cond2", "data")
+Week2Data
+#
+write.csv(Week2Data, file = "Week2Data.csv", row.names = FALSE) #create a .csv file
+```
+
+1. Using the read.csv function open Week2Data.csv
+```{r}
+Week2Data <- read.csv(file = "Week2Data.csv", header = TRUE, sep = ",")
+```
+  2. Click on the blue arrow next to Week2Data:
+```{r pressure, echo=FALSE,  out.width = '50%'}
+knitr::include_graphics("HW2_Q2.png")
+# ref: https://stackoverflow.com/questions/25166624/insert-picture-table-in-r-markdown
+# https://rdrr.io/cran/knitr/man/include_graphics.html
+```
+  
+  3. Click on “File View” icon
+```{r pressure2, echo=FALSE,  out.width = '50%'}
+knitr::include_graphics("HW2_Q3.png")
+```
+  
+  4. Using the summary() funtion, find the global mean for the data.
+```{r}
+summary(Week2Data) # the global mean for data is 0.5625
+```
+  5. At the command line, enter: Week2Data[,'subNum']
+```{r}
+Week2Data[,'subNum']
+```
+  6. At the command line, enter: Week2Data[,1]
+```{r}
+Week2Data[,1]
+```
+  7. At the command line, enter:
+  What do cond11 and cond22 correspond to?
+```{r}
+cond11 = Week2Data$cond1 == 1 # cond11 is a logic vector that indicates which value in cond1 equals 1
+cond11
+cond12 = Week2Data$cond1 == 2 # cond12 is a logic vector that indicates which value in cond1 equals 2
+cond12
+```
+
+  8. At the command line, enter: Week2Data[,'data']
+```{r}
+Week2Data[,'data']
+```
+  9. At the command line, enter:
+  What is being computed?
+```{r}
+mean(Week2Data[cond11 == TRUE, 'data']) # this is the mean of the values in data column if cond1 is 1
+mean(Week2Data[cond12 == TRUE, 'data']) # this is the mean of the values in data column if cond1 is 2
+```
+  10. At the commandline,enter
+```{r}
+x = Week2Data$data
+```
+
+  11. At the command line, evaluate x. In other words, what does the variable x equal?
+```{r}
+x   # x is all the values in data column 
+```
+
+  12. At the command line, enter
+  What was returned?
+```{r}
+aggregate(x, by = list(Week2Data$cond1, Week2Data$cond2), FUN = mean) 
+# this is the mean of x (values in data column) for each of the cond1 by cond2 combinations
+```
+
+  13. Save each of these commands in an R file. This file is called a program or a script. Name the file
+Week2Homework{YourName}. Put your answers to the 3 questions I asked in a comment next the
+appropriate line of R code. If you completed this assignment properly, I should be able to source or run
+your program when I open in RStudio. Place this file in the course Dropbox folder.

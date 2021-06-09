@@ -1,0 +1,74 @@
+---
+title: 'Bayesian Stats HW3'
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+## Exercise4.1.
+  In your write-up, include each line above and its results. Explain what each line does (in a bit more detail than the inline comments).
+```{r}
+# display the table class object
+show(HairEyeColor) # Show data
+# use apply function to sum the frequency by eye color and then by hair color
+EyeHairFreq = apply( HairEyeColor, c("Eye","Hair"), sum ) # Sum across sex
+# calculate the joint proportions by eye and by hair-color
+EyeHairProp = EyeHairFreq / sum( EyeHairFreq )  # joint proportions, Table 4.1
+# round the proportion to 2 decimal points and then display it
+show( round( EyeHairProp , 2 ) )
+# use apply function to sum the frequency by hair-color
+HairFreq = apply( HairEyeColor , c("Hair") , sum ) # Sum across sex and eye
+# calculate marginal proportions by hair-color
+HairProp = HairFreq / sum( HairFreq ) # marginal proportions, Table 4.1
+# round the proportion to 2 decimal points and then display it
+show( round( HairProp , 2 ) )
+# use apply function to sum the frequency by eye-color
+EyeFreq = apply( HairEyeColor , c("Eye") , sum ) # Sum across sex and eye
+# calculate marginal proportions by eye-color
+EyeProp = EyeFreq / sum( EyeFreq ) # marginal proportions, Table 4.1
+# round the proportion to 2 decimal points and then display it
+show( round( EyeProp , 2 ) )
+# calculate the conditional probability of hair color when eye color is blue 
+EyeHairProp["Blue",] / EyeProp["Blue"] # conditional prob, Table 4.2
+```
+  Extend the above commands by also computing the probabilities of the hair colors given Brown eyes, and the probabilities of the eye colors given Brown hair.
+```{r}
+#the probabilities of the hair colors given Brown eyes
+EyeHairProp["Brown",] / EyeProp["Brown"]
+# the probabilities of the eye colors given Brown hair.
+EyeHairProp[,"Brown"] / HairProp["Brown"]
+```
+## Ex 4.3
+  A) There are 48/6 = 8 cards for value 10. The probability of getting a 10 is 8/48 = .167
+  B) The probability of getting a 10 or a Jack is 8/48 * 2 = .333 because these two events are independent (mutually exclusive)
+    
+## Ex 4.6
+```{r}
+# marginal prob for grade 
+PropGrade = c(.2, .2,  .6) # prob for 1st, 6th, and 11th grades respectively
+PropGrade
+# conditional prob table
+condProp = data.frame("ice cream" = c(.3,.6,.3),
+                      "fruit" = c(.6,.3,.1),
+                      "french fries" = c(.1,.1,.6)) 
+rownames(condProp) = c("p1st","p6th","p11th")
+condProp
+# joint prob is marginal prob * conditional prob
+# p(food,grade) = p(food|grade) * p(grade)
+jointprob = PropGrade*condProp
+jointprob
+
+```
+  
+  To see if grade and food are indepedent:
+```{r}
+# marginal prob for food
+PropFood = colSums(jointprob)
+PropFood
+```
+any cell in the joint probability table is not a product of their respective marginal probability. For instance,
+$p(Ice cream) * p(1st grade) = .36\times0.2 =  0.072$  
+which is not 0.06
+
+

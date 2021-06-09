@@ -1,0 +1,359 @@
+---
+title: 'Bayesian Stats HW4'
+geometry: margin=1.2cm
+output:
+  pdf_document: default
+  # fig_width: .5
+  # fig_height: .5 
+  
+---
+```{r setup}
+graphics.off()
+setwd("/Users/Bayesian Data Analysis/HW")
+source("/Users/Bayesian Data Analysis/DBDA2Eprograms/DBDA2E-utilities.R")
+source("/Users/Bayesian Data Analysis/DBDA2Eprograms/BernGrid.R")
+```
+
+## Ex 5.1
+Suppose that the same randomly selected person as in Table 5.4 gets re-tested after the first test result was positive, and on the re-test, the result is negative. When taking into account the results of both tests, what is the probability that the person has the disease? 
+```{r}
+# probability of having disease
+prob.dis = .001
+# hit rate is .99
+prob.pos.given.dis = .99
+# false alarm is .05
+prob.pos.given.nodis = .05
+prob.nodis = 1 - prob.dis
+prob.neg.given.dis = 1-prob.pos.given.dis
+prob.neg.given.nodis = 1-prob.pos.given.nodis
+# first test
+prob.dis.given.pos = prob.pos.given.dis * prob.dis/
+  (prob.dis * prob.pos.given.dis 
+   + prob.nodis * prob.pos.given.nodis)
+print(paste("only considering the first test result, the probability is :", prob.dis.given.pos, sep = " "))
+# for retest
+prob.dis.retest = prob.dis.given.pos
+prob.dis.given.neg.retest = prob.neg.given.dis * prob.dis.retest/
+  (prob.dis.retest * prob.neg.given.dis + 
+     (1 - prob.dis.retest) * prob.neg.given.nodis)
+print(paste("considering two test results, the probability is", 
+            prob.dis.given.neg.retest, sep = " ")) 
+```
+## Ex 5.3
+  (A) Suppose that a person selected at random from the population gets the test and
+it comes back negative. Compute the probability that the person has the disease.
+```{r}
+# probability of having disease (prior)
+prob.dis = .001
+# hit rate is .99
+prob.pos.given.dis = .99
+# false alarm is .05
+prob.pos.given.nodis = .05
+prob.nodis = 1 - prob.dis
+prob.neg.given.dis = 1-prob.pos.given.dis
+prob.neg.given.nodis = 1-prob.pos.given.nodis
+# first test
+prob.dis.given.neg = prob.neg.given.dis * prob.dis/
+  (prob.dis * prob.neg.given.dis + 
+     prob.nodis * prob.neg.given.nodis)
+print(paste("only considering the first test result, the probability is :", 
+            prob.dis.given.neg, sep = " "))
+```
+  (B) The person then gets re-tested, and on the second test the result is positive. Compute the probability that the person has the disease.
+```{r}
+prob.dis.retest = prob.dis.given.neg
+prob.dis.given.pos.retest = prob.pos.given.dis * prob.dis.retest/
+  (prob.dis.retest * prob.pos.given.dis + 
+     (1-prob.dis.retest) * prob.pos.given.nodis)
+print(paste("only considering the first test result, the probability is :", 
+            prob.dis.given.pos.retest, sep = " "))
+```
+The probability here is the same as what I got for Exercise 5.1
+
+## Ex 5.4
+**Example0:** this shows reallocation of 5 parameter values after taking into account prior and likelihood (because the likelihood favors Head). The prior has more influence because of the small sample size.
+```{r ex0, out.width ="50%"}
+Theta = seq( 0 , 1 , length=5 )  # Sparse teeth for Theta.
+pTheta = pmin( Theta , 1-Theta ) # Triangular shape for pTheta.
+pTheta = pTheta/sum(pTheta)      # Make pTheta sum to 1.0
+Data = c(rep(0,0),rep(1,1))      # Single flip with 1 head
+# openGraph(width=5,height=7)
+posterior = BernGrid( Theta, pTheta , Data , plotType="Bars" , 
+                      showCentTend="None", showHDI=FALSE, showpD=FALSE)
+# saveGraph(file="BernGridExample0",type="eps")
+```
+
+**Example 1:** this shows reallocation of the distribution of 11 parameter values after taking into account prior and likelihood (because the likelihood favors Head). The prior has more influence because of the small sample size.
+```{r ex1, out.width ="50%"}
+Theta = seq( 0 , 1 , length=11 )  # Sparse teeth for Theta.
+pTheta = pmin( Theta , 1-Theta ) # Triangular shape for pTheta.
+pTheta = pTheta/sum(pTheta)      # Make pTheta sum to 1.0
+Data = c(rep(0,0),rep(1,1))      # Single flip with 1 head
+
+# openGraph(width=5,height=7)
+posterior = BernGrid( Theta, pTheta , Data , plotType="Bars" , 
+                      showCentTend="None" , showHDI=FALSE , showpD=FALSE )
+# saveGraph(file="BernGridExample1",type="eps")
+```
+
+**Example 2:** the shape of the posterior distribution is similar to that of the likelihood distribution because prior is flat (uninformed and vague) even though the sample size is super small
+```{r ex2, out.width ="50%"}
+Theta = seq( 0 , 1 , length=1001 ) # Fine teeth for Theta.
+pTheta = rep(1,length(Theta))      # Uniform (horizontal) shape for pTheta.
+pTheta = pTheta/sum(pTheta)        # Make pTheta sum to 1.0
+Data = c(rep(0,0),rep(1,1))        # Single flip with 1 head
+
+# openGraph(width=5,height=7)
+posterior = BernGrid( Theta, pTheta , Data , plotType="Bars" , 
+                      showCentTend="None" , showHDI=FALSE , showpD=FALSE )
+# saveGraph(file="BernGridExample2",type="eps")
+```
+**Example 3:** this shows an extreme distribution of priors and the likelihood favors head (only 1 flip). The posterior distribution favors prior distribution because it is informative and the sample size is super small
+```{r ex3, out.width ="50%"}
+Theta = seq( 0 , 1 , length=1001 ) # Fine teeth for Theta.
+pTheta = rep(0,length(Theta))      # Only extremes are possible!
+pTheta[2] = 1                      # Only extremes are possible!
+pTheta[length(pTheta)-1] = 1
+pTheta = pTheta/sum(pTheta)        # Make pTheta sum to 1.0
+Data = c(rep(0,0),rep(1,1))        # Single flip with 1 head
+
+# openGraph(width=5,height=7)
+posterior = BernGrid( Theta, pTheta , Data , plotType="Bars" ,
+                      showCentTend="None" , showHDI=FALSE , showpD=FALSE )
+# saveGraph(file="BernGridExample3",type="eps")
+```
+**Example 4:** this shows the reallocation of the distribution of parameter values. Copmared to the likelihood distribution, the priors distribution has greater impact on the posterior because the sample size is small and the prior is informative .
+```{r ex4, out.width ="50%"}
+Theta = seq( 0 , 1 , length=1001 )  # Fine teeth for Theta.
+pTheta = pmin( Theta , 1-Theta ) # Triangular shape for pTheta.
+pTheta = pTheta/sum(pTheta)      # Make pTheta sum to 1.0
+Data = c(rep(0,3),rep(1,1))      # 25% heads, N=4
+
+# openGraph(width=5,height=7)
+posterior = BernGrid( Theta, pTheta , Data , plotType="Bars" , 
+                      showCentTend="Mode" , showHDI=TRUE , showpD=FALSE )
+# saveGraph(file="BernGridExample4",type="eps")
+```
+**Example 5:** Similar to the previous example, the prior distribution has greater impact on the posterior because the sample size is small and the prior is informative. The posterior distribution is similar to the prior distribution
+```{r ex5, out.width ="50%"}
+Theta = seq( 0 , 1 , length=1001 )  # Fine teeth for Theta.
+pTheta = pmin( Theta , 1-Theta ) # Triangular shape for pTheta.
+pTheta = pTheta/sum(pTheta)      # Make pTheta sum to 1.0
+pTheta = pTheta^10               # Sharpen pTheta !
+pTheta = pTheta/sum(pTheta)      # Make pTheta sum to 1.0
+Data = c(rep(0,3),rep(1,1))      # 25% heads, N=4
+
+# openGraph(width=5,height=7)
+posterior = BernGrid( Theta, pTheta , Data , plotType="Bars" , 
+                      showCentTend="Mode" , showHDI=TRUE , showpD=FALSE )
+# saveGraph(file="BernGridExample5",type="eps")
+```
+**Example 6:** The posterior distribution is similar to the likelihood distribution because the prior distribution is uninformed and vague and the sample size is small.
+```{r ex6, out.width ="50%"}
+Theta = seq( 0 , 1 , length=1001 )  # Fine teeth for Theta.
+pTheta = pmin( Theta , 1-Theta ) # Triangular shape for pTheta.
+pTheta = pTheta/sum(pTheta)      # Make pTheta sum to 1.0
+pTheta = pTheta^0.1              # Flatten pTheta !
+pTheta = pTheta/sum(pTheta)      # Make pTheta sum to 1.0
+Data = c(rep(0,3),rep(1,1))      # 25% heads, N=4
+
+# openGraph(width=5,height=7)
+posterior = BernGrid( Theta, pTheta , Data , plotType="Bars" , 
+                      showCentTend="Mode" , showHDI=TRUE , showpD=FALSE )
+# saveGraph(file="BernGridExample6",type="eps")
+```
+**Example 7:** The posterior distribution is similar to the likelihood distribution because the sample size is big enough to influence the posterior distribution
+```{r ex7, out.width ="50%"}
+Theta = seq( 0 , 1 , length=1001 )  # Fine teeth for Theta.
+pTheta = pmin( Theta , 1-Theta ) # Triangular shape for pTheta.
+pTheta = pTheta/sum(pTheta)      # Make pTheta sum to 1.0
+Data = c(rep(0,30),rep(1,10))    # 25% heads, N=40
+
+# openGraph(width=5,height=7)
+posterior = BernGrid( Theta, pTheta , Data , plotType="Bars" , 
+                      showCentTend="Mode" , showHDI=TRUE , showpD=FALSE )
+# saveGraph(file="BernGridExample7",type="eps")
+```
+**Example 8:** The posterior distribution is a compromise between the prior and the likelihood distribution.  The prior distribution is informative and the sample size is big enough to influence the posterior distribution
+```{r ex8, out.width ="50%"}
+Theta = seq( 0 , 1 , length=1001 )  # Fine teeth for Theta.
+pTheta = pmin( Theta , 1-Theta ) # Triangular shape for pTheta.
+pTheta = pTheta/sum(pTheta)      # Make pTheta sum to 1.0
+pTheta = pTheta^10               # Sharpen pTheta !
+pTheta = pTheta/sum(pTheta)      # Make pTheta sum to 1.0
+Data = c(rep(0,30),rep(1,10))    # 25% heads, N=40
+# openGraph(width=5,height=7)
+posterior = BernGrid( Theta, pTheta , Data , plotType="Bars" , 
+                      showCentTend="Mode" , showHDI=TRUE , showpD=FALSE )
+# saveGraph(file="BernGridExample8",type="eps")
+```
+**Example 9:** The posterior distribution is similar to the likelihood distribution because the prior distribution is uninformed (too flat) and the sample size is big enough to influence the posterior distribution
+```{r ex9, out.width ="50%"}
+Theta = seq( 0 , 1 , length=1001 )  # Fine teeth for Theta.
+pTheta = pmin( Theta , 1-Theta ) # Triangular shape for pTheta.
+pTheta = pTheta/sum(pTheta)      # Make pTheta sum to 1.0
+pTheta = pTheta^0.1              # Flatten pTheta !
+pTheta = pTheta/sum(pTheta)      # Make pTheta sum to 1.0
+Data = c(rep(0,30),rep(1,10))    # 25% heads, N=40
+
+# openGraph(width=5,height=7)
+posterior = BernGrid( Theta, pTheta , Data , plotType="Bars" , 
+                      showCentTend="Mode" , showHDI=TRUE , showpD=FALSE )
+# saveGraph(file="BernGridExample9",type="eps")
+```
+**Example 10:** Similar to the previous example, the posterior distribution is a compromise between the prior and the likelihood distribution.  The prior distribution is informative and the sample size is big enough to influence the posterior distribution. 
+```{r ex10, out.width ="50%"}
+Theta = seq( 0 , 1 , length=1000 )  # Fine teeth for Theta.
+# Two triangular peaks on a small non-zero floor:
+pTheta = c( rep(1,200),seq(1,100,length=50),seq(100,1,length=50),rep(1,200) , 
+            rep(1,200),seq(1,100,length=50),seq(100,1,length=50),rep(1,200) )
+pTheta = pTheta/sum(pTheta)      # Make pTheta sum to 1.0
+Data = c(rep(0,13),rep(1,14)) 
+
+# openGraph(width=5,height=7)
+posterior = BernGrid( Theta, pTheta , Data , plotType="Bars" , 
+                      showCentTend="None" , showHDI=FALSE , showpD=FALSE )
+# saveGraph(file="BernGridExample10",type="eps")
+```
+## Class Exercise
+##### what happens when you have 3000 heads out of 12000 flips
+  the BernGrid function won't work because the following code in the function won't work. 
+```{r eval = FALSE}
+# Create summary values of Data
+z = sum( Data==1 ) # number of 1's in Data
+N = length( Data ) # number of flips in Data
+# Compute the likelihood of the Data for each value of Theta.
+pDataGivenTheta = Theta^z * (1-Theta)^(N-z)
+# Compute the evidence and the posterior.
+pData = sum( pDataGivenTheta * pTheta )
+pThetaGivenData = pDataGivenTheta * pTheta / pData
+```
+When you have the following parameters, Theta^z and (1-Theta)^(N-z) in the code above will be infitely small (zero). Consequently, pDataGivenTheta and pData will be zero and pThetaGivenData will be undefined since the denominator will be zero. 
+```{r  eval = FALSE}
+Theta = seq(0,1,by = .1)
+pTheta = pmin(Theta, 1-Theta)
+pTheta = pTheta/sum(pTheta)
+Data = c(rep(0,12000-3000),rep(1,3000)) # 3000 heads, out of 12000 flips
+# BernGrid(Theta,pTheta, Data = Data)
+```
+
+```{r echo=FALSE}
+BernGrid = function( Theta , pTheta , Data ,
+                     credib=.95 , nToPlot=length(Theta) ) {
+# Bayesian updating for Bernoulli likelihood and prior specified on a grid.
+# Input arguments:
+#  Theta is a vector of theta values, all between 0 and 1.
+#  pTheta is a vector of corresponding probability _masses_.
+#  Data is a vector of 1's and 0's, where 1 corresponds to a and 0 to b.
+#  credib is the probability mass of the credible interval, default is 0.95.
+#  nToPlot is the number of grid points to plot; defaults to all of them.
+# Output:
+#  pThetaGivenData is a vector of posterior probability masses over Theta.
+#  Also creates a three-panel graph of prior, likelihood, and posterior 
+#  probability masses with credible interval.
+# Example of use:
+#  # Create vector of theta values.
+#  > binwidth = 1/1000
+#  > thetagrid = seq( from=binwidth/2 , to=1-binwidth/2 , by=binwidth )
+#  # Specify probability mass at each theta value.
+#  > relprob = pmin(thetagrid,1-thetagrid) # relative prob at each theta
+#  > prior = relprob / sum(relprob) # probability mass at each theta
+#  # Specify the data vector.
+#  > datavec = c( rep(1,3) , rep(0,1) ) # 3 heads, 1 tail
+#  # Call the function.
+#  > posterior = BernGrid( Theta=thetagrid , pTheta=prior , Data=datavec )
+# Hints:
+#  You will need to "source" this function before calling it.
+#  You may want to define a tall narrow window before using it; e.g.,
+#  > source("openGraphSaveGraph.R")
+#  > openGraph(width=7,height=10,mag=0.7)
+
+# Create summary values of Data
+z = sum( Data==1 ) # number of 1's in Data
+N = length( Data ) # number of flips in Data
+# Compute the likelihood of the Data for each value of Theta.
+pDataGivenTheta = Theta^z * (1-Theta)^(N-z)
+# Compute the evidence and the posterior.
+pData = sum( pDataGivenTheta * pTheta )
+pThetaGivenData = pDataGivenTheta * pTheta / pData
+
+# Plot the results.
+layout( matrix( c( 1,2,3 ) ,nrow=3 ,ncol=1 ,byrow=FALSE ) ) # 3x1 panels
+par( mar=c(3,3,1,0) , mgp=c(2,1,0) , mai=c(0.5,0.5,0.3,0.1) ) # margin settings
+dotsize = 5 # how big to make the plotted dots
+# If the comb has a zillion teeth, it's too many to plot, so plot only a
+# thinned out subset of the teeth.
+nteeth = length(Theta)
+if ( nteeth > nToPlot ) {
+  thinIdx = seq( 1, nteeth , round( nteeth / nToPlot ) )
+  if ( length(thinIdx) < length(Theta) ) {
+    thinIdx = c( thinIdx , nteeth ) # makes sure last tooth is included
+  }
+} else { thinIdx = 1:nteeth }
+# Plot the prior.
+meanTheta = sum( Theta * pTheta ) # mean of prior, for plotting
+plot( Theta[thinIdx] , pTheta[thinIdx] , type="p" , pch="." , cex=dotsize ,
+      xlim=c(0,1) , ylim=c(0,1.1*max(pThetaGivenData)) , cex.axis=1.2 ,
+      xlab=bquote(theta) , ylab=bquote(p(theta)) , cex.lab=1.5 ,
+      main="Prior" , cex.main=1.5 , col="skyblue" )
+if ( meanTheta > .5 ) {
+   textx = 0 ; textadj = c(0,1)
+} else {
+  textx = 1 ; textadj = c(1,1)
+}
+text( textx , 1.0*max(pThetaGivenData) ,
+      bquote( "mean(" * theta * ")=" * .(signif(meanTheta,3)) ) ,
+      cex=2.0 , adj=textadj )
+# Plot the likelihood: p(Data|Theta)
+plot(Theta[thinIdx] ,pDataGivenTheta[thinIdx] ,type="p" ,pch="." ,cex=dotsize
+	,xlim=c(0,1) ,cex.axis=1.2 ,xlab=bquote(theta) 
+	,ylim=c(0,1.1*max(pDataGivenTheta)) 
+	,ylab=bquote( "p(D|" * theta * ")" )  
+	,cex.lab=1.5 ,main="Likelihood" ,cex.main=1.5 , col="skyblue" )
+if ( z > .5*N ) { textx = 0 ; textadj = c(0,1) }
+else { textx = 1 ; textadj = c(1,1) }
+text( textx ,1.0*max(pDataGivenTheta) ,cex=2.0
+	,bquote( "Data: z=" * .(z) * ",N=" * .(N) ) ,adj=textadj )
+# Plot the posterior.
+meanThetaGivenData = sum( Theta * pThetaGivenData )
+plot(Theta[thinIdx] ,pThetaGivenData[thinIdx] ,type="p" ,pch="." ,cex=dotsize
+	,xlim=c(0,1) ,ylim=c(0,1.1*max(pThetaGivenData)) ,cex.axis=1.2 
+	,xlab=bquote(theta) ,ylab=bquote( "p(" * theta * "|D)" )
+	,cex.lab=1.5 ,main="Posterior" ,cex.main=1.5 , col="skyblue" )
+if ( meanThetaGivenData > .5 ) { textx = 0 ; textadj = c(0,1) } 
+else { textx = 1 ; textadj = c(1,1) }
+text(textx ,1.00*max(pThetaGivenData) ,cex=2.0
+	,bquote( "mean(" * theta * "|D)=" * .(signif(meanThetaGivenData,3)) ) 
+	,adj=textadj )
+text(textx ,0.75*max(pThetaGivenData) ,cex=2.0
+	,bquote( "p(D)=" * .(signif(pData,3)) ) ,adj=textadj )
+# Mark the highest density interval. HDI points are not thinned in the plot.
+source("/Users/yuejiateng/Dropbox/USF Grad/2018 Fall/Bayesian Data Analysis/DBDA2Eprograms/HDIofGrid.R")
+HDIinfo = HDIofGrid( pThetaGivenData , credMass=credib )
+points( Theta[ HDIinfo$indices ] ,
+       rep( HDIinfo$height , length( HDIinfo$indices ) ) , pch="-" , cex=1.0 )
+text( mean( Theta[ HDIinfo$indices ] ) , HDIinfo$height ,
+         bquote( .(100*signif(HDIinfo$mass,3)) * "% HDI" ) ,
+         adj=c(0.5,-1.5) , cex=1.5 )
+# Mark the left and right ends of the waterline. 
+# Find indices at ends of sub-intervals:
+inLim = HDIinfo$indices[1] # first point
+for ( idx in 2:(length(HDIinfo$indices)-1) ) {
+  if ( ( HDIinfo$indices[idx] != HDIinfo$indices[idx-1]+1 ) | # jumps on left, OR
+    ( HDIinfo$indices[idx] != HDIinfo$indices[idx+1]-1 ) ) { # jumps on right
+    inLim = c(inLim,HDIinfo$indices[idx]) # include idx
+  }
+}
+inLim = c(inLim,HDIinfo$indices[length(HDIinfo$indices)]) # last point
+# Mark vertical lines at ends of sub-intervals:
+for ( idx in inLim ) {
+  lines( c(Theta[idx],Theta[idx]) , c(-0.5,HDIinfo$height) , type="l" , lty=2 , 
+         lwd=1.5 )
+  text( Theta[idx] , HDIinfo$height , bquote(.(round(Theta[idx],3))) ,
+        adj=c(0.5,-0.1) , cex=1.2 )
+}
+
+return( pThetaGivenData )
+} # end of function
+```
+
