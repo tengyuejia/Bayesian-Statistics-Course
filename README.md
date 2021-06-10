@@ -1,2 +1,2 @@
 # Bayesian Statistics Course
-Code written for the Bayesian Statistics class I took
+R Code written for the Bayesian Statistics class I took
